@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Premium Task Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <aside class="sidebar">
+        <div class="brand"><span class="logo-text">Dash</span>board</div>
+
+        <div class="user-profile">
+          <div class="avatar-container">
+            <img
+              src="https://images.unsplash.com/photo-1612916628677-475f676a6adf?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              alt="Sundar Gurung"
+            />
+          </div>
+          <h3>Anudit Jangid</h3>
+          <p>anuditjangid@gmail.com</p>
+        </div>
+
+        <div class="nav-menu">
+          <nav class="nav-menu-list">
+            <a href="#" class="nav-item active">Dashboard</a>
+            <a href="#" class="nav-item">My Task</a>
+            <a href="#" class="nav-item">Tomorrow</a>
+          </nav>
+          <div class="projects"></div>
+        </div>
+
+        <div class="add-project-section">
+          <label for="add-project-toggle" class="add-project-btn">
+            <span>+</span> Add Project
+          </label>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="top-header">
+          <div class="search-bar">
+            <input type="text" placeholder="Search your task here..." />
+          </div>
+        </header>
+
+        <section class="welcome-section">
+          <h1>Welcome back, Anudit 👋</h1>
+        </section>
+
+        <div class="content-grid">
+          <section class="todo-column">
+            <div class="column-header">
+              <h2 style="color: var(--text-main); font-size: 20px">To-Do</h2>
+              <button class="add-task-btn">+ Add task</button>
+            </div>
+            <div class="task-container">
+              <div class="task-card">
+                <div class="priority-ring"></div>
+
+                <div class="task-content">
+                  <h3>Attend Nischal's Birthday Party</h3>
+                  <p>
+                    Buy gifts on the way and pick up cake from the bakery before
+                    6 PM.
+                  </p>
+
+                  <div class="task-meta">
+                    <div class="control-group">
+                      <span class="meta-label">Priority:</span>
+                      <div class="select-wrapper priority-wrapper">
+                        <select class="custom-select priority-select">
+                          <option value="high" selected>High</option>
+                          <option value="moderate">Moderate</option>
+                          <option value="low">Low</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="control-group checkbox-group">
+                      <label class="custom-checkbox">
+                        <input type="checkbox" class="completed-checkbox" />
+                        <span class="checkmark"></span>
+                        <span class="checkbox-label">Completed</span>
+                      </label>
+                    </div>
+
+                    <span class="due-date">Due: 24/06/2026</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="task-card">
+                <div class="priority-ring"></div>
+
+                <div class="task-content">
+                  <h3>Landing Page Design for TravelDays</h3>
+                  <p>
+                    Get the work done by EOD and discuss with the client before
+                    leaving.
+                  </p>
+
+                  <div class="task-meta">
+                    <div class="control-group">
+                      <span class="meta-label">Priority:</span>
+                      <div class="select-wrapper priority-wrapper">
+                        <select class="custom-select priority-select">
+                          <option value="high">High</option>
+                          <option value="moderate" selected>Moderate</option>
+                          <option value="low">Low</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="control-group checkbox-group">
+                      <label class="custom-checkbox">
+                        <input type="checkbox" class="completed-checkbox" />
+                        <span class="checkmark"></span>
+                        <span class="checkbox-label">Completed</span>
+                      </label>
+                    </div>
+
+                    <span class="due-date">Due: 20/06/2026</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <input type="checkbox" id="add-project-toggle" class="hidden-toggle" />
+
+    <div class="modal-overlay">
+      <div class="modal-card">
+        <label for="add-project-toggle" class="close-modal">&times;</label>
+
+        <h2>Create New Project</h2>
+        <p>Set up a new project space to organize related tasks.</p>
+
+        <form class="modal-form" action="#">
+          <div class="form-group">
+            <label>Project Title</label>
+            <input
+              type="text"
+              placeholder="e.g., Q3 Marketing Campaign"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea
+              placeholder="Briefly describe the project goals..."
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Deadline</label>
+              <input type="date" required />
+            </div>
+            <div class="form-group">
+              <label>Priority</label>
+              <select class="modal-select">
+                <option value="high">High</option>
+                <option value="moderate" selected>Moderate</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn">Create Project</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
