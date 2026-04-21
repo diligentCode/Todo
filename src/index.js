@@ -1,2 +1,10 @@
-import style from "./style.css";
-console.log("Hello, World! This is a simple Todo List application.");
+import "./style.css";
+import { initApp } from "./app.js";
+import { renderSidebar, renderTasks, setupEventListeners } from "./dom.js";
+
+document.addEventListener("DOMContentLoaded", () => {
+  initApp();
+  setupEventListeners();
+  renderSidebar();
+  renderTasks();
+});
