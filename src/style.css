@@ -684,5 +684,13 @@ body {
 }
 
 .delete-task-btn:hover {
-  color: #b91c1c; /* Darker red on hover */
+  color: #b91c1c;
+}
+
+/* For Modal to visible */
+.modal-overlay.active-modal {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+  display: flex;
 }
