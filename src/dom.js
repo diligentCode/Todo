@@ -20,51 +20,48 @@ const SELECTORS = {
   addTaskBtn: ".add-task-btn",
 };
 
-const createElement = (tag, classNames = "", textContent = "") => {
-  const el = document.createElement(tag);
-  if (classNames) el.className = classNames;
-  if (textContent) el.textContent = textContent;
-  return el;
-};
-
+// 1. Render Sidebar Projects
 export const renderSidebar = () => {
   const container = document.querySelector(SELECTORS.projectsContainer);
   container.innerHTML = "";
 
   getProjects().forEach((project) => {
-    const div = createElement("a", "nav-item project-item");
-    div.href = "#";
-    div.textContent = `# ${project.title}`;
-    div.dataset.id = project.id;
+    const link = document.createElement("a");
+    link.className = "nav-item project-item";
+    link.href = "#";
+    link.textContent = `# ${project.title}`;
+    link.dataset.id = project.id;
 
     if (getCurrentFilter() === project.id) {
-      div.classList.add("active");
+      link.classList.add("active");
     }
 
-    div.addEventListener("click", (e) => {
+    link.addEventListener("click", (e) => {
       e.preventDefault();
       document
         .querySelectorAll(".nav-item")
         .forEach((el) => el.classList.remove("active"));
-      div.classList.add("active");
+      link.classList.add("active");
       setCurrentFilter(project.id);
       renderTasks();
     });
 
-    container.appendChild(div);
+    container.appendChild(link);
   });
 };
 
+// 2. Render Task Cards using the HTML <template>
 export const renderTasks = () => {
   const container = document.querySelector(SELECTORS.taskContainer);
+  const template = document.querySelector("#task-card-template");
   container.innerHTML = "";
 
+  // Set the correct Column Title based on active filter
   const titleMap = {
     Dashboard: "All Tasks",
     "My Task": "Today's Tasks",
     Tomorrow: "Tomorrow's Tasks",
   };
-
   const current = getCurrentFilter();
   const headerTitle = document.querySelector(SELECTORS.columnHeaderTitle);
 
@@ -75,95 +72,20 @@ export const renderTasks = () => {
     headerTitle.textContent = p ? p.title : "Tasks";
   }
 
+  // Generate Task Cards
   const tasks = getFilteredTasks();
-
   tasks.forEach((task) => {
-    const card = createElement("div", "task-card");
-    if (task.completed) card.style.opacity = "0.6";
+    // Clone the HTML structure from the template
+    const clone = template.content.cloneNode(true);
 
-    // Priority Ring
-    const ring = createElement("div", "priority-ring");
-    ring.style.width = "12px";
-    ring.style.height = "12px";
-    ring.style.borderRadius = "50%";
-    ring.style.flexShrink = "0";
-    ring.style.marginTop = "4px";
-    if (task.priority === "high") ring.style.backgroundColor = "#ef4444";
-    else if (task.priority === "moderate")
-      ring.style.backgroundColor = "#f59e0b";
-    else ring.style.backgroundColor = "#3b82f6";
+    // Set Text Content
+    clone.querySelector(".task-title").textContent = task.title;
 
-    const content = createElement("div", "task-content");
+    const descEl = clone.querySelector(".task-description");
+    descEl.textContent = task.description;
+    descEl.classList.add("hidden-toggle"); // Hide description by default
 
-    const topRow = createElement("div");
-    topRow.style.display = "flex";
-    topRow.style.justifyContent = "space-between";
-    topRow.style.alignItems = "flex-start";
-
-    const h3 = createElement("h3", "", task.title);
-    if (task.completed) h3.style.textDecoration = "line-through";
-
-    const delBtn = createElement("button", "", "×");
-    delBtn.style.background = "none";
-    delBtn.style.border = "none";
-    delBtn.style.color = "#ef4444";
-    delBtn.style.cursor = "pointer";
-    delBtn.style.fontSize = "24px";
-    delBtn.style.lineHeight = "1";
-    delBtn.addEventListener("click", () => {
-      deleteTodo(task.id);
-      renderTasks();
-    });
-
-    topRow.append(h3, delBtn);
-
-    const p = createElement("p", "", task.description);
-
-    const meta = createElement("div", "task-meta");
-
-    // Priority Dropdown
-    const pGroup = createElement("div", "control-group");
-    const pLabel = createElement("span", "meta-label", "Priority:");
-    const pWrapper = createElement("div", "select-wrapper priority-wrapper");
-    const pSelect = createElement("select", "custom-select priority-select");
-
-    ["high", "moderate", "low"].forEach((lvl) => {
-      const opt = createElement(
-        "option",
-        "",
-        lvl.charAt(0).toUpperCase() + lvl.slice(1),
-      );
-      opt.value = lvl;
-      if (task.priority === lvl) opt.selected = true;
-      pSelect.appendChild(opt);
-    });
-
-    pSelect.addEventListener("change", (e) => {
-      updateTodoPriority(task.id, e.target.value);
-      renderTasks();
-    });
-
-    pWrapper.appendChild(pSelect);
-    pGroup.append(pLabel, pWrapper);
-
-    // Completed Checkbox
-    const cGroup = createElement("div", "control-group checkbox-group");
-    const cLabel = createElement("label", "custom-checkbox");
-    const cInput = createElement("input", "completed-checkbox");
-    cInput.type = "checkbox";
-    cInput.checked = task.completed;
-    const cCheckmark = createElement("span", "checkmark");
-    const cText = createElement("span", "checkbox-label", "Completed");
-
-    cInput.addEventListener("change", (e) => {
-      updateTodoStatus(task.id, e.target.checked);
-      renderTasks();
-    });
-
-    cLabel.append(cInput, cCheckmark, cText);
-    cGroup.appendChild(cLabel);
-
-    // Date Display
+    // Format and Set Date
     let dateText = "No Due Date";
     if (task.dueDate) {
       try {
@@ -172,132 +94,120 @@ export const renderTasks = () => {
         dateText = task.dueDate;
       }
     }
-    const dSpan = createElement("span", "due-date", dateText);
+    clone.querySelector(".due-date").textContent = dateText;
 
-    meta.append(pGroup, cGroup, dSpan);
-    content.append(topRow, p, meta);
+    // Sync Inputs (Your CSS dynamically styles the card based on these!)
+    const select = clone.querySelector(".priority-select");
+    select.value = task.priority;
 
-    // Setup card expanding logic on content click (ignore inputs/buttons)
-    content.addEventListener("click", (e) => {
-      if (["SELECT", "INPUT", "BUTTON"].includes(e.target.tagName)) return;
-      p.style.display = p.style.display === "none" ? "block" : "none";
+    const checkbox = clone.querySelector(".completed-checkbox");
+    checkbox.checked = task.completed;
+
+    // --- Add Event Listeners to the cloned elements ---
+
+    // Delete Task
+    clone.querySelector(".delete-task-btn").addEventListener("click", () => {
+      deleteTodo(task.id);
+      renderTasks();
     });
 
-    // Default collapse description for neatness, expand on click
-    p.style.display = "none";
+    // Change Priority
+    select.addEventListener("change", (e) => {
+      updateTodoPriority(task.id, e.target.value);
+      renderTasks();
+    });
 
-    card.append(ring, content);
-    container.appendChild(card);
+    // Toggle Complete
+    checkbox.addEventListener("change", (e) => {
+      updateTodoStatus(task.id, e.target.checked);
+      renderTasks();
+    });
+
+    // Expand/Collapse Description on Click
+    clone.querySelector(".task-content").addEventListener("click", (e) => {
+      // Don't expand if they clicked a button, select, or checkbox
+      if (["SELECT", "INPUT", "BUTTON"].includes(e.target.tagName)) return;
+      descEl.classList.toggle("hidden-toggle");
+    });
+
+    // Append finished card to container
+    container.appendChild(clone);
   });
 };
 
+// 3. Show Inline "Add Task" Form
 export const showAddTaskForm = () => {
   const container = document.querySelector(SELECTORS.taskContainer);
 
-  // Prevent multiple forms
+  // Prevent opening multiple forms
   if (container.querySelector(".inline-task-form")) return;
 
-  const form = createElement("form", "task-card inline-task-form");
-  form.style.display = "flex";
-  form.style.flexDirection = "column";
-  form.style.gap = "12px";
-  form.style.padding = "20px";
+  const form = document.createElement("form");
+  form.className = "task-card inline-task-form task-content modal-form";
 
-  const titleInput = createElement("input");
-  titleInput.type = "text";
-  titleInput.placeholder = "Task Title (e.g., Read documentation)";
-  titleInput.required = true;
-  titleInput.style.padding = "10px";
-  titleInput.style.border = "1px solid #e2e8f0";
-  titleInput.style.borderRadius = "6px";
-
-  const descInput = createElement("textarea");
-  descInput.placeholder = "Task Description...";
-  descInput.rows = 2;
-  descInput.style.padding = "10px";
-  descInput.style.border = "1px solid #e2e8f0";
-  descInput.style.borderRadius = "6px";
-
-  const row = createElement("div");
-  row.style.display = "flex";
-  row.style.gap = "15px";
-
-  const dateInput = createElement("input");
-  dateInput.type = "date";
-  dateInput.style.padding = "10px";
-  dateInput.style.border = "1px solid #e2e8f0";
-  dateInput.style.borderRadius = "6px";
-
+  // Pre-fill date if looking at Today or Dashboard
   const filter = getCurrentFilter();
-  if (["Dashboard", "My Task"].includes(filter)) {
-    dateInput.value = format(new Date(), "yyyy-MM-dd");
-  }
+  const defaultDate = ["Dashboard", "My Task"].includes(filter)
+    ? format(new Date(), "yyyy-MM-dd")
+    : "";
 
-  const prioritySelect = createElement("select");
-  prioritySelect.style.padding = "10px";
-  prioritySelect.style.border = "1px solid #e2e8f0";
-  prioritySelect.style.borderRadius = "6px";
-  ["low", "moderate", "high"].forEach((lvl) => {
-    const opt = createElement(
-      "option",
-      "",
-      lvl.charAt(0).toUpperCase() + lvl.slice(1),
-    );
-    opt.value = lvl;
-    if (lvl === "moderate") opt.selected = true;
-    prioritySelect.appendChild(opt);
-  });
+  // Build form using your existing CSS classes (No inline styles!)
+  form.innerHTML = `
+    <div class="form-group">
+      <input type="text" class="form-title" placeholder="Task Title (e.g., Read documentation)" required>
+    </div>
+    <div class="form-group">
+      <textarea class="form-desc" placeholder="Task Description..." rows="2"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <input type="date" class="form-date" value="${defaultDate}">
+      </div>
+      <div class="form-group">
+        <select class="modal-select form-priority">
+          <option value="low">Low</option>
+          <option value="moderate" selected>Moderate</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <button type="submit" class="submit-btn">Save Task</button>
+      <button type="button" class="submit-btn cancel-btn" class="close-btn">Cancel</button>
+    </div>
+  `;
 
-  row.append(dateInput, prioritySelect);
+  // Cancel Button Logic
+  form
+    .querySelector(".cancel-btn")
+    .addEventListener("click", () => renderTasks());
 
-  const btnRow = createElement("div");
-  btnRow.style.display = "flex";
-  btnRow.style.gap = "10px";
-  btnRow.style.marginTop = "5px";
-
-  const submitBtn = createElement("button", "submit-btn", "Save Task");
-  submitBtn.type = "submit";
-  submitBtn.style.padding = "10px 20px";
-  submitBtn.style.borderRadius = "6px";
-  submitBtn.style.border = "none";
-  submitBtn.style.background = "var(--primary-color, #3b82f6)";
-  submitBtn.style.color = "#fff";
-  submitBtn.style.cursor = "pointer";
-
-  const cancelBtn = createElement("button", "", "Cancel");
-  cancelBtn.type = "button";
-  cancelBtn.style.padding = "10px 20px";
-  cancelBtn.style.borderRadius = "6px";
-  cancelBtn.style.border = "1px solid #e2e8f0";
-  cancelBtn.style.background = "transparent";
-  cancelBtn.style.cursor = "pointer";
-  cancelBtn.addEventListener("click", () => renderTasks());
-
-  btnRow.append(submitBtn, cancelBtn);
-  form.append(titleInput, descInput, row, btnRow);
-
+  // Submit Logic
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const currentFilter = getCurrentFilter();
 
+    // Determine which project to add to
     let targetProjectId = getProjects()[0].id;
     if (!["Dashboard", "My Task", "Tomorrow"].includes(currentFilter)) {
       targetProjectId = currentFilter;
     }
 
     addTodo(
-      titleInput.value,
-      descInput.value,
-      dateInput.value,
-      prioritySelect.value,
+      form.querySelector(".form-title").value,
+      form.querySelector(".form-desc").value,
+      form.querySelector(".form-date").value,
+      form.querySelector(".form-priority").value,
       targetProjectId,
     );
+
     renderTasks();
   });
 
   container.prepend(form);
 };
 
+// 4. Global Event Listeners Setup
 export const setupEventListeners = () => {
   // Static Navigation Menu Items
   const navItems = document.querySelectorAll(".nav-menu-list .nav-item");
@@ -313,13 +223,13 @@ export const setupEventListeners = () => {
     });
   });
 
-  // Add Task Button
+  // Top-Right "Add Task" Button
   const addTaskBtn = document.querySelector(SELECTORS.addTaskBtn);
   if (addTaskBtn) {
     addTaskBtn.addEventListener("click", () => showAddTaskForm());
   }
 
-  // Add Project Form Modal
+  // Create Project Modal Form
   const addProjectForm = document.querySelector(SELECTORS.addProjectForm);
   if (addProjectForm) {
     addProjectForm.addEventListener("submit", (e) => {
@@ -338,17 +248,3 @@ export const setupEventListeners = () => {
     });
   }
 };
-
-JavaScript;
-
-// filename: index.js
-import "./style.css";
-import { initApp } from "./app.js";
-import { renderSidebar, renderTasks, setupEventListeners } from "./dom.js";
-
-document.addEventListener("DOMContentLoaded", () => {
-  initApp();
-  setupEventListeners();
-  renderSidebar();
-  renderTasks();
-});

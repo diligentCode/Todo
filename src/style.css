@@ -1,6 +1,6 @@
-* {
+/* * {
   border: 1px solid red;
-}
+} */
 /* --- Premium SaaS Variables & Reset --- */
 :root {
   --brand-primary: #6366f1;
@@ -656,4 +656,33 @@ body {
 .submit-btn:hover {
   transform: translateY(-2px);
   box-shadow: var(--glow-primary);
+}
+
+/* For the "To-Do" text in the column header */
+.todo-heading {
+  color: var(--text-main);
+  font-size: 20px;
+}
+
+/* For spacing the title and the delete button in the task card */
+.task-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* Styling for the delete (X) button on tasks */
+.delete-task-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.delete-task-btn:hover {
+  color: #b91c1c; /* Darker red on hover */
 }
