@@ -29,7 +29,7 @@ export const renderSidebar = () => {
     const link = document.createElement("a");
     link.className = "nav-item project-item";
     link.href = "#";
-    link.textContent = `# ${project.title}`;
+    link.textContent = `${project.title}`;
     link.dataset.id = project.id;
 
     if (getCurrentFilter() === project.id) {
